@@ -8,8 +8,7 @@ public class Transaction {
     private LocalDate time;
     private double sum;
 
-    public Transaction(double sum)
-    {
+    public Transaction(double sum) {
         id = UUID.randomUUID();
         time = LocalDate.now();
         this.sum = sum;

@@ -5,8 +5,7 @@ import Tools.BankException;
 import java.time.LocalDate;
 
 public class DepositAccount extends BankAccount {
-    public DepositAccount(double sum, Client client, Bank bank, LocalDate dateFinishing)
-    {
+    public DepositAccount(double sum, Client client, Bank bank, LocalDate dateFinishing) {
         super(sum, client, bank, dateFinishing);
     }
 
@@ -16,7 +15,7 @@ public class DepositAccount extends BankAccount {
     }
 
     @Override
-    public double transferPartMoney(double money, BankAccount bankAccount) throws BankException{
+    public double transferPartMoney(double money, BankAccount bankAccount) throws BankException {
         throw new BankException("Invalid operation");
     }
 }

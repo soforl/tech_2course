@@ -4,14 +4,15 @@ import Tools.BankException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Bank implements IObservable {
-    private ArrayList<Client> clients;
-    private ArrayList<PercentageDepositAccount> percentages;
-    private ArrayList<BankAccount> bankAccounts;
+    private List<Client> clients;
+    private List<PercentageDepositAccount> percentages;
+    private List<BankAccount> bankAccounts;
     private double transferLimit;
     private String name;
-    private ArrayList<IObserver> observers;
+    private List<IObserver> observers;
 
     public Bank(String name, double transferLimit) {
         this.name = name;
@@ -22,7 +23,7 @@ public class Bank implements IObservable {
         observers = new ArrayList<IObserver>();
     }
 
-    public ArrayList<Client> getClients() {
+    public List<Client> getClients() {
         return clients;
     }
 
@@ -30,7 +31,7 @@ public class Bank implements IObservable {
         this.clients = clients;
     }
 
-    public ArrayList<PercentageDepositAccount> getPercentages() {
+    public List<PercentageDepositAccount> getPercentages() {
         return percentages;
     }
 
@@ -38,7 +39,7 @@ public class Bank implements IObservable {
         this.percentages = percentages;
     }
 
-    public ArrayList<BankAccount> getBankAccounts() {
+    public List<BankAccount> getBankAccounts() {
         return bankAccounts;
     }
 
@@ -62,23 +63,21 @@ public class Bank implements IObservable {
         this.name = name;
     }
 
-    public ArrayList<IObserver> getObservers() {
+    public List<IObserver> getObservers() {
         return observers;
     }
 
-    public void setObservers(ArrayList<IObserver> observers) {
+    public void setObservers(List<IObserver> observers) {
         this.observers = observers;
     }
 
     public Client addClient(String firstName, String lastName) throws BankException {
-        if (!firstName.isBlank() || !lastName.isBlank())
-        {
+        if (!firstName.isBlank() || !lastName.isBlank()) {
             Client client = new ClientBuilder()
                     .buildFirstName(firstName)
                     .buildLastName(lastName)
                     .build();
-            if (!clients.contains(client))
-            {
+            if (!clients.contains(client)) {
                 clients.add(client);
             }
 
@@ -88,20 +87,17 @@ public class Bank implements IObservable {
         throw new BankException("Invalid client");
     }
 
-    public Client addClientAddress(String address, Client client)
-    {
+    public Client addClientAddress(String address, Client client) {
         client.addAddress(address);
         return client;
     }
 
-    public Client addClientPassport(String passport, Client client)
-    {
+    public Client addClientPassport(String passport, Client client) {
         client.addPassport(passport);
         return client;
     }
 
-    public BankAccount addDepositAccount(Client client, double sum, double percentage, LocalDate dateFinishing)
-    {
+    public BankAccount addDepositAccount(Client client, double sum, double percentage, LocalDate dateFinishing) {
         BankAccount bankAccount = new DepositAccount(sum, client, this, dateFinishing);
         bankAccounts.add(bankAccount);
         return bankAccount;
@@ -122,10 +118,9 @@ public class Bank implements IObservable {
     public void addPercentageSum(double percentage, double sumAccount) {
         double left = -1;
         double right = Integer.MAX_VALUE;
-        for (PercentageDepositAccount percent: percentages) {
+        for (PercentageDepositAccount percent : percentages) {
             if (right > percent.getSum2() - sumAccount && right > 0
-                    && left < sumAccount - percent.getSum2() && left < 0)
-            {
+                    && left < sumAccount - percent.getSum2() && left < 0) {
                 left = sumAccount - percent.getSum2();
                 right = percent.getSum2() - sumAccount;
             }
@@ -139,10 +134,9 @@ public class Bank implements IObservable {
         double left = -1;
         double right = Integer.MAX_VALUE;
         double percentage = 0;
-        for (PercentageDepositAccount percent: percentages) {
+        for (PercentageDepositAccount percent : percentages) {
             if (right > percent.getSum2() - sumAccount && right > 0
-                    && left < sumAccount - percent.getSum2() && left < 0)
-            {
+                    && left < sumAccount - percent.getSum2() && left < 0) {
                 left = sumAccount - percent.getSum2();
                 right = percent.getSum2() - sumAccount;
                 percentage = percent.getPercentage();
@@ -158,18 +152,15 @@ public class Bank implements IObservable {
     }
 
     public void cancelTransaction(BankAccount bankAccount1, BankAccount bankAccount2, Transaction transaction) throws BankException {
-        for (Transaction transfer: bankAccount1.getTransactions()) {
-            if (transaction.getId() == transfer.getId())
-            {
-                if (transfer.getSum() > 0)
-                {
+        for (Transaction transfer : bankAccount1.getTransactions()) {
+            if (transaction.getId() == transfer.getId()) {
+                if (transfer.getSum() > 0) {
                     bankAccount1.withdrawPartMoney(transfer.getSum());
                     bankAccount2.depositMoney(transfer.getSum());
                     break;
                 }
 
-                if (transfer.getSum() < 0)
-                {
+                if (transfer.getSum() < 0) {
                     bankAccount1.depositMoney(transfer.getSum() * (-1));
                     bankAccount2.withdrawPartMoney(transfer.getSum() * (-1));
                     break;
@@ -179,17 +170,14 @@ public class Bank implements IObservable {
     }
 
     public void cancelTransaction(BankAccount bankAccount, Transaction transaction) throws BankException {
-        for (Transaction transfer: bankAccount.getTransactions()) {
-            if (transaction.getId() == transfer.getId())
-            {
-                if (transfer.getSum() > 0)
-                {
+        for (Transaction transfer : bankAccount.getTransactions()) {
+            if (transaction.getId() == transfer.getId()) {
+                if (transfer.getSum() > 0) {
                     bankAccount.withdrawPartMoney(transfer.getSum());
                     break;
                 }
 
-                if (transfer.getSum() < 0)
-                {
+                if (transfer.getSum() < 0) {
                     bankAccount.depositMoney(transfer.getSum() * (-1));
                     break;
                 }
@@ -206,7 +194,7 @@ public class Bank implements IObservable {
     }
 
     public void notifyObservers(BankAccount bankAccount, double operation) {
-        for (IObserver observer: observers) {
+        for (IObserver observer : observers) {
             observer.update(bankAccount, operation);
         }
     }

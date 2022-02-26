@@ -5,8 +5,9 @@ import Tools.BankException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
+import java.util.List;
 
-public abstract class BankAccount implements IObserver{
+public abstract class BankAccount implements IObserver {
     private final Integer DayMonth = 30;
 
     private double operation;
@@ -16,10 +17,9 @@ public abstract class BankAccount implements IObserver{
     private double limit;
     private LocalDate date;
     private LocalDate dateFinishing;
-    private ArrayList<Transaction> transactions;
+    private List<Transaction> transactions;
 
-    protected BankAccount(double operation, double sum, Client client, Bank bank, LocalDate dateFinishing)
-    {
+    protected BankAccount(double operation, double sum, Client client, Bank bank, LocalDate dateFinishing) {
         this.operation = operation;
         this.sum = sum;
         this.client = client;
@@ -31,8 +31,7 @@ public abstract class BankAccount implements IObserver{
         transactions.add(new Transaction(sum));
     }
 
-    protected BankAccount(double sum, Client client, Bank bank, LocalDate dateFinishing)
-    {
+    protected BankAccount(double sum, Client client, Bank bank, LocalDate dateFinishing) {
         this.sum = sum;
         this.client = client;
         this.bank = bank;
@@ -100,11 +99,11 @@ public abstract class BankAccount implements IObserver{
         this.dateFinishing = dateFinishing;
     }
 
-    public ArrayList<Transaction> getTransactions() {
+    public List<Transaction> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(ArrayList<Transaction> transactions) {
+    public void setTransactions(List<Transaction> transactions) {
         this.transactions = transactions;
     }
 
@@ -115,15 +114,13 @@ public abstract class BankAccount implements IObserver{
     }
 
     public double withdrawPartMoney(double money) throws BankException {
-        if (sum > 0 && client.checkRegistration())
-        {
+        if (sum > 0 && client.checkRegistration()) {
             transactions.add(new Transaction(money * (-1)));
             sum -= money;
             return sum;
         }
 
-        if (sum >= money && !client.checkRegistration() && limit >= money)
-        {
+        if (sum >= money && !client.checkRegistration() && limit >= money) {
             transactions.add(new Transaction(money * (-1)));
             sum -= money;
             return sum;
@@ -132,17 +129,15 @@ public abstract class BankAccount implements IObserver{
         throw new BankException("No  money on the account");
     }
 
-    public double transferPartMoney(double money, BankAccount bankAccount) throws BankException{
-        if (sum >= money && client.checkRegistration())
-        {
+    public double transferPartMoney(double money, BankAccount bankAccount) throws BankException {
+        if (sum >= money && client.checkRegistration()) {
             bankAccount.depositMoney(money);
 
             sum -= money;
             return sum;
         }
 
-        if (sum >= money && !client.checkRegistration() && limit >= money)
-        {
+        if (sum >= money && !client.checkRegistration() && limit >= money) {
             bankAccount.depositMoney(money);
             sum -= money;
             return sum;
@@ -151,28 +146,22 @@ public abstract class BankAccount implements IObserver{
         throw new BankException("Invalid operation");
     }
 
-    public double calculatePercentage(LocalDate date) throws BankException{
+    public double calculatePercentage(LocalDate date) throws BankException {
         double allPercentages = 0;
-        if (dateFinishing.isBefore(date))
-        {
+        if (dateFinishing.isBefore(date)) {
             Period date2 = Period.between(dateFinishing, date);
-            for (int i = 0; i < date2.getDays(); i++)
-            {
+            for (int i = 0; i < date2.getDays(); i++) {
                 allPercentages += sum * (operation / (365 * 100));
                 sum += allPercentages;
                 transactions.add(new Transaction(allPercentages));
                 allPercentages = 0;
             }
-        }
-        else
-        {
+        } else {
             Period date2 = Period.between(date, this.date);
             Integer days = date2.getDays();
-            for (int i = 0; i < days; i++)
-            {
+            for (int i = 0; i < days; i++) {
                 allPercentages += sum * (operation / 365);
-                if (i == DayMonth)
-                {
+                if (i == DayMonth) {
                     sum += allPercentages;
                     transactions.add(new Transaction(allPercentages));
                     days -= DayMonth;

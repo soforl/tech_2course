@@ -37,25 +37,22 @@ public class Program {
             System.out.println("Write sum that will be on your bank account");
             double sum = Double.parseDouble(in.next());
             account = bank.addCreditAccount(client, sum, 10, LocalDate.of(2022, 12, 30), 730);
-        }
-        else if (number == 2) {
+        } else if (number == 2) {
             System.out.println("Write sum that will be on your bank account");
             double sum = Double.parseDouble(in.next());
             account = bank.addDebitAccount(client, sum, 10, LocalDate.of(2022, 12, 30));
-        }
-        else if (number == 3) {
+        } else if (number == 3) {
             System.out.println("Write sum that will be on your bank account");
             double sum = Double.parseDouble(in.next());
             account = bank.addDepositAccount(client, sum, 10, LocalDate.of(2022, 12, 30));
-        }
-        else {
+        } else {
             System.out.println("Enter the right number");
         }
 
         System.out.println("Money on the accounts before scrolling time:");
 
-        for (Bank bank1: centralBank.getBanks()) {
-            for (BankAccount account1: bank1.getBankAccounts()) {
+        for (Bank bank1 : centralBank.getBanks()) {
+            for (BankAccount account1 : bank1.getBankAccounts()) {
                 System.out.println(account1.getSum());
             }
         }
@@ -63,8 +60,8 @@ public class Program {
         System.out.println("Money on the accounts after scrolling time:");
 
         centralBank.scrollingTime(LocalDate.of(2022, 12, 29));
-        for (Bank bank1: centralBank.getBanks()) {
-            for (BankAccount account1: bank1.getBankAccounts()) {
+        for (Bank bank1 : centralBank.getBanks()) {
+            for (BankAccount account1 : bank1.getBankAccounts()) {
                 System.out.println(account1.getSum());
             }
         }
@@ -73,26 +70,19 @@ public class Program {
 
         System.out.println("What second account do you want to create? Enter 1 - credit; 2 - debit; 3 - deposit");
         Integer number2 = Integer.parseInt(in.next());
-        if (number2 == 1)
-        {
+        if (number2 == 1) {
             System.out.println("Write sum that will be on your bank account");
             double sum = Double.parseDouble(in.next());
             account2 = bank.addCreditAccount(client, sum, 10, LocalDate.of(2022, 12, 30), 730);
-        }
-        else if (number2 == 2)
-        {
+        } else if (number2 == 2) {
             System.out.println("Write sum that will be on your bank account");
             double sum = Double.parseDouble(in.next());
             account2 = bank.addDebitAccount(client, sum, 10, LocalDate.of(2022, 12, 30));
-        }
-        else if (number2 == 3)
-        {
+        } else if (number2 == 3) {
             System.out.println("Write sum that will be on your bank account");
             double sum = Double.parseDouble(in.next());
             account2 = bank.addDepositAccount(client, sum, 10, LocalDate.of(2022, 12, 30));
-        }
-        else
-        {
+        } else {
             System.out.println("Enter the right number");
         }
 
@@ -102,8 +92,8 @@ public class Program {
 
         System.out.println("Money on the accounts after transfering:");
 
-        for (Bank bank1: centralBank.getBanks()) {
-            for (BankAccount account1: bank1.getBankAccounts()) {
+        for (Bank bank1 : centralBank.getBanks()) {
+            for (BankAccount account1 : bank1.getBankAccounts()) {
                 System.out.println(account1.getSum());
             }
         }

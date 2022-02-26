@@ -4,7 +4,7 @@ public class ClientData {
     private Bank bank;
     private BankAccount bankAccount;
 
-    public ClientData(Bank bank, BankAccount bankAccount){
+    public ClientData(Bank bank, BankAccount bankAccount) {
         this.bank = bank;
         this.bankAccount = bankAccount;
     }

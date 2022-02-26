@@ -1,13 +1,14 @@
 package Classes;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Client {
     private String firstName;
     private String lastName;
     private String address;
     private String passport;
-    private ArrayList<ClientData> clientAccounts;
+    private List<ClientData> clientAccounts;
 
     public Client(String firstName, String lastName, String address, String passport) {
         this.firstName = firstName;
@@ -66,15 +67,14 @@ public class Client {
     }
 
     public boolean checkRegistration() {
-        if (address != null && passport != null)
-        {
+        if (address != null && passport != null) {
             return true;
         }
 
         return false;
     }
 
-    public ArrayList<ClientData> addBankAccount(Bank bank, BankAccount bankAccount) {
+    public List<ClientData> addBankAccount(Bank bank, BankAccount bankAccount) {
         clientAccounts.add(new ClientData(bank, bankAccount));
         return clientAccounts;
     }

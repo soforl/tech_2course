@@ -4,9 +4,10 @@ import Tools.BankException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CentralBank {
-    private ArrayList<Bank> banks = new ArrayList<Bank>();
+    private List<Bank> banks = new ArrayList<Bank>();
 
     public Bank registerBank(String name, double limit) {
         var bank = new Bank(name, limit);
@@ -15,14 +16,14 @@ public class CentralBank {
     }
 
     public void scrollingTime(LocalDate date) throws BankException {
-        for (Bank bank: banks) {
-            for (BankAccount bankAccount: bank.getBankAccounts()) {
+        for (Bank bank : banks) {
+            for (BankAccount bankAccount : bank.getBankAccounts()) {
                 bankAccount.calculatePercentage(date);
             }
         }
     }
 
-    public ArrayList<Bank> getBanks() {
+    public List<Bank> getBanks() {
         return banks;
     }
 }
