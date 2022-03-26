@@ -15,9 +15,8 @@ public class BreedDao implements Dao<Breed>{
 
     @Override
     public List<Breed> getAll() {
-        List<Breed> breeds = (List<Breed>) HibernateSessionFactoryUtil
+        return HibernateSessionFactoryUtil
                 .getSessionFactory().openSession().createQuery("From Breed ").list();
-        return breeds;
     }
 
     @Override

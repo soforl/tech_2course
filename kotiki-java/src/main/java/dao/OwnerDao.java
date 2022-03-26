@@ -15,9 +15,8 @@ public class OwnerDao implements Dao<Owner> {
 
     @Override
     public List<Owner> getAll() {
-        List<Owner> owners = (List<Owner>) HibernateSessionFactoryUtil
+        return HibernateSessionFactoryUtil
                 .getSessionFactory().openSession().createQuery("From Owner ").list();
-        return owners;
     }
 
     @Override

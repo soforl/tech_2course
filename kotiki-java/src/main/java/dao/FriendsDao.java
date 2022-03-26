@@ -15,9 +15,9 @@ public class FriendsDao implements Dao<Friends>{
 
     @Override
     public List<Friends> getAll() {
-        List<Friends> friends = (List<Friends>) HibernateSessionFactoryUtil
+        return HibernateSessionFactoryUtil
                 .getSessionFactory().openSession().createQuery("From Friends ").list();
-        return friends;
+
     }
 
     @Override

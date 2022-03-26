@@ -15,9 +15,8 @@ public class KotikDao implements Dao<Kotik> {
 
     @Override
     public List<Kotik> getAll() {
-        List<Kotik> kotiki = (List<Kotik>) HibernateSessionFactoryUtil
+        return HibernateSessionFactoryUtil
                 .getSessionFactory().openSession().createQuery("From Kotik ").list();
-        return kotiki;
     }
 
     @Override
