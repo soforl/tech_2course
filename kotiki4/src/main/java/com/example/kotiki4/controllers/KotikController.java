@@ -1,22 +1,22 @@
-package ru.itmo.kotiki.controllers;
+package com.example.kotiki4.controllers;
 
+import com.example.kotiki4.entities.Color;
+import com.example.kotiki4.entities.Kotik;
+import com.example.kotiki4.entities.Owner;
+import com.example.kotiki4.services.FriendsService;
+import com.example.kotiki4.services.KotikService;
+import com.example.kotiki4.services.OwnerService;
+import com.example.kotiki4.wrappers.KotikWrapper;
+import com.example.kotiki4.wrappers.WrapperCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import ru.itmo.kotiki.entities.Color;
-import ru.itmo.kotiki.entities.Friends;
-import ru.itmo.kotiki.entities.Kotik;
-import ru.itmo.kotiki.repositories.FriendsRepository;
-import ru.itmo.kotiki.services.FriendsServiceImpl;
-import ru.itmo.kotiki.services.KotikServiceImpl;
-import ru.itmo.kotiki.services.OwnerServiceImpl;
-import ru.itmo.kotiki.wrappers.KotikWrapper;
-import ru.itmo.kotiki.wrappers.WrapperCreator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,18 +24,18 @@ import java.util.stream.Collectors;
 // http://localhost:8081/kotiki/
 
 @RestController
-@RequestMapping(value = "kotiki")
+@RequestMapping
 public class KotikController {
     @Autowired
-    private KotikServiceImpl kotikService;
+    private KotikService kotikService;
 
     @Autowired
-    private OwnerServiceImpl ownerService;
+    private OwnerService ownerService;
 
     @Autowired
-    private FriendsServiceImpl friendsService;
+    private FriendsService friendsService;
 
-    @PostMapping(value = "/add")
+    @RequestMapping(value = "/admin/addKotik")
     public ResponseEntity addKotik(@RequestParam String name,
                                    @RequestParam String birthday,
                                    @RequestParam String color,
@@ -44,20 +44,16 @@ public class KotikController {
     ) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            kotikService.saveKotik(
-                    name,
-                    LocalDate.parse(birthday, formatter),
-                    Color.valueOf(color),
-                    breed,
-                    ownerService.findOwner(ownerId)
-            );
+            Kotik kotik = new Kotik(name, LocalDate.parse(birthday, formatter), color, breed,
+                    ownerService.findOwner(ownerId));
+            kotikService.saveKotik(kotik);
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = "/get")
+    @GetMapping(value = "/admin/getKotik")
     public ResponseEntity getKotik(@RequestParam Integer id) {
         Kotik kot = kotikService.findKotik(id);
         return ResponseEntity.ok().body(new KotikWrapper(
@@ -70,7 +66,28 @@ public class KotikController {
         ));
     }
 
-    @DeleteMapping(value = "/delete")
+    @GetMapping(value = "/admin/getOwnersKotik")
+    public ResponseEntity getOwnersKotik(@RequestParam Integer kotikId,
+                                         @RequestParam Integer ownerId) {
+        try {
+            Kotik kot = kotikService.findKotik(kotikId);
+            if (kot.getOwnerId().equals(ownerId)){
+                return ResponseEntity.ok().body(new KotikWrapper(
+                        kot.getId(),
+                        kot.getName(),
+                        kot.getBirthday(),
+                        kot.getBreedId(),
+                        kot.getColorId(),
+                        kot.getOwnerId().getId()
+                ));
+            }
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/admin/deleteKotik")
     public ResponseEntity deleteKotik(@RequestParam Integer id) {
         try {
             kotikService.deleteKotik(id);
@@ -80,8 +97,8 @@ public class KotikController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = "/findAll")
-    public ResponseEntity  findAll() {
+    @GetMapping(value = "/admin/findAllKotiks")
+    public ResponseEntity  findAllKotiks() {
         try {
             List<Kotik> kotiks = kotikService.findAll();
             List<KotikWrapper> kotikWrappers = kotiks.stream()
@@ -93,7 +110,7 @@ public class KotikController {
         }
     }
 
-    @GetMapping(value = "/getFriends")
+    @GetMapping(value = "/admin/getFriends")
     public ResponseEntity getFriends(@RequestParam Integer id){
         try {
             Kotik kotik = kotikService.findKotik(id);
@@ -106,7 +123,7 @@ public class KotikController {
         }
     }
 
-    @PostMapping(value = "/addFriend")
+    @RequestMapping(value = "/admin/addFriend")
     public ResponseEntity addFriend(@RequestParam Integer id1,
                                     @RequestParam Integer id2){
         try {
@@ -118,7 +135,7 @@ public class KotikController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = "/getByColor")
+    @GetMapping(value = "/admin/getByColor")
     public ResponseEntity getByColor(@RequestParam String color){
         try {
             Collection<Kotik> colorKotik = kotikService.findByColorId(Color.valueOf(color));
@@ -131,8 +148,39 @@ public class KotikController {
         }
     }
 
-    @GetMapping(value = "/getByOwner")
-    public ResponseEntity getByColor(@RequestParam Integer id){
+    @GetMapping(value = "/user/getByColor")
+    public ResponseEntity getByColorForOwner(@RequestParam String color){
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Owner owner = ownerService.findOwnerByUsername(auth.getName());
+            Collection<Kotik> colorKotik = kotikService.findByColorId(Color.valueOf(color));
+            Collection<KotikWrapper> kotikWrappers = colorKotik.stream()
+                    .filter(kotik -> kotik.getOwnerId().equals(owner.getId()))
+                    .map(kotik -> WrapperCreator.createKotikWrapper(kotik))
+                    .collect(Collectors.toList());
+            return new ResponseEntity(kotikWrappers, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @RequestMapping(value = "/user/getOwnersKotiks")
+    public ResponseEntity getOwnersKotiks(){
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Owner owner = ownerService.findOwnerByUsername(auth.getName());
+            Collection<Kotik> colorKotik = kotikService.findByOwnerId(owner);
+            Collection<KotikWrapper> kotikWrappers = colorKotik.stream()
+                    .map(kotik -> WrapperCreator.createKotikWrapper(kotik))
+                    .collect(Collectors.toList());
+            return new ResponseEntity(kotikWrappers, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping(value = "/admin/getByOwner")
+    public ResponseEntity getByOwner(@RequestParam Integer id){
         try {
             Collection<Kotik> colorKotik = kotikService.findByOwnerId(ownerService.findOwner(id));
             Collection<KotikWrapper> kotikWrappers = colorKotik.stream()

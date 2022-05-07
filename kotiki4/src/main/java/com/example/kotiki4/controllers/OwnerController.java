@@ -1,15 +1,13 @@
-package ru.itmo.kotiki.controllers;
+package com.example.kotiki4.controllers;
 
+import com.example.kotiki4.entities.Owner;
+import com.example.kotiki4.services.OwnerService;
+import com.example.kotiki4.wrappers.OwnerWrapper;
+import com.example.kotiki4.wrappers.WrapperCreator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.itmo.kotiki.entities.Kotik;
-import ru.itmo.kotiki.entities.Owner;
-import ru.itmo.kotiki.services.OwnerServiceImpl;
-import ru.itmo.kotiki.wrappers.KotikWrapper;
-import ru.itmo.kotiki.wrappers.OwnerWrapper;
-import ru.itmo.kotiki.wrappers.WrapperCreator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,26 +15,38 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "owners")
+@RequestMapping
 public class OwnerController {
     @Autowired
-    private OwnerServiceImpl ownerService;
+    private OwnerService ownerService;
 
-    @PostMapping(value = "/add")
+    @GetMapping(value="/")
+    public String hello(){
+        return "Hello";
+    }
+
+    @RequestMapping(value = "/admin/addOwner")
     public ResponseEntity addOwner(@RequestParam String name,
-                                   @RequestParam String birthday
+                                   @RequestParam String birthday,
+                                   @RequestParam String username,
+                                   @RequestParam String role,
+                                   @RequestParam String password
     ) {
         try{
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            ownerService.saveOwner(name,
-                    LocalDate.parse(birthday, formatter));
+            Owner owner = new Owner(name,
+                    LocalDate.parse(birthday, formatter),
+                    role,
+                    username,
+                    password);
+            ownerService.saveOwner(owner);
         } catch (Exception e){
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = "/get")
+    @GetMapping(value = "/admin/getOwner")
     public ResponseEntity getOwner(@RequestParam Integer id){
         Owner owner = ownerService.findOwner(id);
         return ResponseEntity.ok().body(new OwnerWrapper(
@@ -46,7 +56,7 @@ public class OwnerController {
         ));
     }
 
-    @DeleteMapping(value = "/delete")
+    @RequestMapping(value = "/admin/deleteOwner")
     public ResponseEntity deleteOwner(@RequestParam Integer id){
         try {
             ownerService.deleteOwner(id);
@@ -56,8 +66,8 @@ public class OwnerController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping(value = "/findAll")
-    public ResponseEntity findAll(){
+    @GetMapping(value = "/admin/findAllOwners")
+    public ResponseEntity findAllOwners(){
         try {
             List<Owner> owners = ownerService.findAll();
             List<OwnerWrapper> ownerWrappers = owners.stream()
